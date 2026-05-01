@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudKraft AI Governance Maturity Assessment</title>
+<meta name="description" content="Evaluate your organisation's AI governance maturity across five architectural layers. Free assessment from CloudKraft Consulting.">
+<meta property="og:title" content="CloudKraft AI Governance Maturity Assessment">
+<meta property="og:description" content="Score your AI governance in 5 minutes. Get a maturity profile and prioritised roadmap.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1F3A5F;
+    --teal: #0B7A6F;
+    --teal-light: #D5E8E5;
+    --navy-light: #E8EEF4;
+    --text: #1A1A1A;
+    --text-muted: #5A6270;
+    --text-hint: #8A909A;
+    --border: #D0D5DD;
+    --border-light: #E8ECF0;
+    --bg: #FFFFFF;
+    --bg-surface: #F7F9FB;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --purple: #534AB7;
+    --purple-bg: #EEEDFE;
+  }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .page-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  .site-header {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .site-logo { font-family: 'Georgia', serif; font-size: 15px; color: var(--navy); letter-spacing: 0.02em; }
+  .site-logo span { color: var(--teal); }
+  .site-contact { font-size: 12px; color: var(--text-hint); }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Intro */
+  .intro-eyebrow { font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+  .intro-title { font-size: 36px; font-weight: normal; color: var(--navy); line-height: 1.25; margin-bottom: 20px; }
+  .intro-body { font-size: 16px; color: var(--text-muted); margin-bottom: 36px; line-height: 1.8; }
+  .layers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 36px; }
+  .layer-card { border: 1px solid var(--border-light); padding: 14px 16px; background: var(--bg-surface); }
+  .layer-card-num { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 6px; }
+  .layer-card-name { font-size: 13px; color: var(--navy); font-weight: normal; }
+  .intro-meta { font-family: Arial, sans-serif; font-size: 12px; color: var(--text-hint); margin-bottom: 32px; }
+  .btn-primary { display: inline-block; background: var(--navy); color: #fff; padding: 14px 32px; font-family: Arial, sans-serif; font-size: 14px; cursor: pointer; border: none; letter-spacing: 0.04em; transition: background 0.2s; }
+  .btn-primary:hover { background: #162d4a; }
+  .btn-ghost { display: inline-block; background: transparent; color: var(--text-muted); padding: 12px 24px; font-family: Arial, sans-serif; font-size: 13px; cursor: pointer; border: 1px solid var(--border); letter-spacing: 0.02em; transition: background 0.2s; }
+  .btn-ghost:hover { background: var(--bg-surface); }
+  .btn-ghost:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Assessment */
+  .progress-track { height: 2px; background: var(--border-light); margin-bottom: 40px; }
+  .progress-fill { height: 2px; background: var(--navy); transition: width 0.35s ease; }
+  .q-layer-tag { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .q-layer-tag::before { content: ''; display: block; width: 20px; height: 1px; background: var(--teal); }
+  .q-text { font-size: 20px; color: var(--navy); line-height: 1.45; margin-bottom: 28px; font-weight: normal; }
+  .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+  .option-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .option-item:hover { border-color: var(--navy); background: var(--navy-light); }
+  .option-item.selected { border-color: var(--navy); background: var(--navy-light); }
+  .option-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; margin-top: 3px; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
+  .option-item.selected .option-radio { border-color: var(--navy); }
+  .option-item.selected .option-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--navy); display: block; }
+  .option-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  .option-item.selected .option-text { color: var(--text); }
+  .q-nav { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border-light); }
+  .q-nav-count { font-family: Arial, sans-serif; font-size: 12px; color: var(--text-hint); }
+
+  /* Results */
+  .result-eyebrow { font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; }
+  .result-title { font-size: 28px; color: var(--navy); margin-bottom: 12px; font-weight: normal; line-height: 1.35; }
+  .result-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 40px; line-height: 1.7; padding-bottom: 32px; border-bottom: 1px solid var(--border-light); }
+  .scores-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 40px; }
+  .score-cell { background: var(--bg-surface); padding: 16px; }
+  .score-layer-label { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 8px; }
+  .score-number { font-size: 28px; color: var(--navy); margin-bottom: 4px; font-weight: normal; }
+  .score-maturity { font-family: Arial, sans-serif; font-size: 11px; margin-bottom: 4px; }
+  .score-name { font-family: Arial, sans-serif; font-size: 10px; color: var(--text-hint); }
+  .mat-initial { color: var(--red); }
+  .mat-developing { color: var(--amber); }
+  .mat-defined { color: var(--green); }
+  .mat-managed { color: var(--blue); }
+  .mat-optimising { color: var(--purple); }
+  .section-heading { font-size: 18px; color: var(--navy); margin-bottom: 20px; font-weight: normal; padding-bottom: 10px; border-bottom: 1px solid var(--border-light); }
+  .chart-section { margin-bottom: 48px; }
+  .chart-container { position: relative; width: 100%; height: 320px; margin-top: 8px; }
+  .findings-section { margin-bottom: 48px; }
+  .finding-row { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-light); }
+  .finding-row:last-child { border-bottom: none; }
+  .finding-badge { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; font-size: 10px; font-weight: bold; }
+  .badge-gap { background: var(--red-bg); color: var(--red); }
+  .badge-ok { background: var(--green-bg); color: var(--green); }
+  .finding-body { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .finding-body strong { color: var(--text); font-weight: normal; font-style: italic; }
+  .roadmap-section { margin-bottom: 48px; }
+  .road-row { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+  .road-tag { font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; margin-top: 2px; }
+  .tag-now { background: var(--red-bg); color: var(--red); }
+  .tag-soon { background: var(--amber-bg); color: var(--amber); }
+  .tag-later { background: var(--green-bg); color: var(--green); }
+  .road-text { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .road-text strong { color: var(--text); font-weight: normal; font-style: italic; }
+  .road-divider { height: 1px; background: var(--border-light); margin: 8px 0 20px; }
+  .cta-box { background: var(--navy); color: #fff; padding: 36px; margin-bottom: 32px; }
+  .cta-title { font-size: 20px; margin-bottom: 12px; font-weight: normal; }
+  .cta-body { font-size: 14px; opacity: 0.8; line-height: 1.8; margin-bottom: 20px; }
+  .cta-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .cta-tier { border: 1px solid rgba(255,255,255,0.2); padding: 16px; }
+  .cta-tier-name { font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; margin-bottom: 6px; }
+  .cta-tier-title { font-size: 14px; margin-bottom: 6px; }
+  .cta-tier-price { font-family: Arial, sans-serif; font-size: 12px; opacity: 0.6; }
+  .cta-contact { font-family: Arial, sans-serif; font-size: 13px; opacity: 0.7; }
+  .cta-contact a { color: #fff; }
+  .restart-link { font-family: Arial, sans-serif; font-size: 12px; color: var(--text-hint); background: none; border: none; cursor: pointer; text-decoration: underline; display: block; text-align: center; margin-top: 24px; }
+  .restart-link:hover { color: var(--text-muted); }
+  .site-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border-light); font-family: Arial, sans-serif; font-size: 12px; color: var(--text-hint); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <header class="site-header">
+    <div class="site-logo">Cloud<span>Kraft</span> Consulting</div>
+    <div class="site-contact">faiz@cloudkraft.com</div>
+  </header>
+
+  <!-- INTRO SCREEN -->
+  <div id="screen-intro" class="screen active">
+    <p class="intro-eyebrow">AI Control Tower Framework</p>
+    <h1 class="intro-title">AI Governance Maturity Assessment</h1>
+    <p class="intro-body">This assessment scores your organisation's AI governance across the five layers of the CloudKraft AI Control Tower framework. Answer 25 questions honestly to receive a scored maturity profile, gap analysis, and prioritised roadmap ready for executive review.</p>
+    <div class="layers-grid">
+      <div class="layer-card"><p class="layer-card-num">Layer 1</p><p class="layer-card-name">Access &amp; Governance</p></div>
+      <div class="layer-card"><p class="layer-card-num">Layer 2</p><p class="layer-card-name">Data &amp; Retrieval</p></div>
+      <div class="layer-card"><p class="layer-card-num">Layer 3</p><p class="layer-card-name">Orchestration</p></div>
+      <div class="layer-card"><p class="layer-card-num">Layer 4</p><p class="layer-card-name">Evaluation &amp; Trust</p></div>
+      <div class="layer-card"><p class="layer-card-num">Layer 5</p><p class="layer-card-name">Integration</p></div>
+    </div>
+    <p class="intro-meta">25 questions &nbsp;&middot;&nbsp; 5&ndash;8 minutes &nbsp;&middot;&nbsp; No account required</p>
+    <button class="btn-primary" onclick="startAssessment()">Begin assessment &rarr;</button>
+  </div>
+
+  <!-- ASSESSMENT SCREEN -->
+  <div id="screen-assessment" class="screen">
+    <div class="progress-track"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+    <div id="question-area"></div>
+    <div class="q-nav">
+      <button class="btn-ghost" id="btn-back" onclick="goBack()">Back</button>
+      <span class="q-nav-count" id="nav-count">1 of 25</span>
+      <button class="btn-primary" id="btn-next" onclick="goNext()" style="opacity:0.35;cursor:not-allowed;" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="screen-results" class="screen">
+    <p class="result-eyebrow">CloudKraft AI Control Tower &mdash; Assessment Results</p>
+    <h2 id="result-title" class="result-title"></h2>
+    <p id="result-sub" class="result-sub"></p>
+    <div class="scores-row" id="scores-row"></div>
+    <div class="chart-section">
+      <p class="section-heading">Maturity profile</p>
+      <div class="chart-container">
+        <canvas id="radar-chart" role="img" aria-label="Radar chart showing AI governance maturity scores across five layers"></canvas>
+      </div>
+    </div>
+    <div class="findings-section">
+      <p class="section-heading">Key findings</p>
+      <div id="findings-list"></div>
+    </div>
+    <div class="roadmap-section">
+      <p class="section-heading">Prioritised roadmap</p>
+      <div id="roadmap-list"></div>
+    </div>
+    <div class="cta-box">
+      <p class="cta-title">Ready to act on these findings?</p>
+      <p class="cta-body">CloudKraft's Diagnostic Assessment delivers a full AI landscape audit, use-case prioritisation matrix, risk exposure analysis, and executive roadmap &mdash; in three weeks, structured for board-level review.</p>
+      <div class="cta-tiers">
+        <div class="cta-tier">
+          <p class="cta-tier-name">Tier 1</p>
+          <p class="cta-tier-title">Diagnostic Assessment</p>
+          <p class="cta-tier-price">From $15,000 &middot; 3 weeks</p>
+        </div>
+        <div class="cta-tier">
+          <p class="cta-tier-name">Tier 2</p>
+          <p class="cta-tier-title">Architecture Blueprint</p>
+          <p class="cta-tier-price">From $45,000 &middot; 6 weeks</p>
+        </div>
+        <div class="cta-tier">
+          <p class="cta-tier-name">Tier 3</p>
+          <p class="cta-tier-title">Implementation Advisory</p>
+          <p class="cta-tier-price">From $18,000/mo</p>
+        </div>
+      </div>
+      <p class="cta-contact">Contact: <a href="mailto:faiz@cloudkraft.com">faiz@cloudkraft.com</a> &nbsp;&middot;&nbsp; <a href="https://cloudkraft.com" style="color:#fff;">cloudkraft.com</a></p>
+    </div>
+    <button class="restart-link" onclick="restart()">Retake assessment</button>
+  </div>
+
+  <footer class="site-footer">
+    <span>CloudKraft Consulting Inc. &copy; 2026</span>
+    <span>CloudKraft AI Control Tower&trade; is a trademark of CloudKraft Consulting Inc.</span>
+  </footer>
+</div>
+
+<script>
+const LAYERS = ["Access & Governance","Data & Retrieval","Orchestration","Evaluation & Trust","Integration"];
+const QUESTIONS = [
+  {l:1,q:"How does your organisation currently manage access to LLM APIs and AI services?",o:["Individual teams hold their own API keys with no central visibility","Some teams share credentials but there is no formal access policy","A central team manages access but policies are inconsistently applied","A governed gateway controls all LLM access with team-level authentication","A fully governed AI gateway enforces policy, rate limits, and cost attribution per team"]},
+  {l:1,q:"How is AI-related spend tracked and attributed across your organisation?",o:["No visibility — costs appear as undifferentiated cloud or SaaS spend","Approximate totals are visible but not attributed to teams or use cases","Costs are tracked at team level but without per-use-case granularity","Per-team cost attribution exists with monthly reporting","Real-time cost dashboards with per-team, per-model, per-use-case attribution"]},
+  {l:1,q:"What governance controls exist for which AI models teams are permitted to use?",o:["No controls — teams use any model they choose","Informal guidelines exist but are not enforced","An approved model list exists but compliance is not monitored","Model allowlists are enforced at the access layer with policy exceptions","Dynamic model governance with risk-tiered allowlists and automated compliance checks"]},
+  {l:1,q:"How does your organisation handle shadow AI — unsanctioned AI tools and APIs?",o:["Shadow AI is not tracked and its extent is unknown","We are aware it exists but have not quantified or addressed it","We have inventoried shadow AI use but have no containment strategy","We have a shadow AI containment policy under active implementation","Shadow AI is systematically detected, inventoried, and either sanctioned or blocked"]},
+  {l:1,q:"How are AI-related audit and compliance obligations currently met?",o:["No audit trail exists for AI system decisions or outputs","Logs exist but are not structured for audit or compliance review","Structured logs exist but audit readiness has not been tested","Audit trails are structured, retained, and have been reviewed in at least one audit","Continuous audit readiness with automated evidence collection and regulatory mapping"]},
+  {l:2,q:"How is enterprise knowledge made available to AI systems in your organisation?",o:["AI systems rely only on the base model's training data with no enterprise context","Ad hoc document uploads are used without a systematic approach","A basic RAG system exists but covers limited content and lacks governance","A governed RAG system with curated, versioned knowledge bases is in production","Multi-source hybrid retrieval with data classification, lineage tracking, and freshness controls"]},
+  {l:2,q:"How is data classification and access control applied to AI-accessible knowledge?",o:["No classification — all AI systems can access all available data","Basic segregation exists but is not systematically enforced","Data classification exists and is manually applied to AI-accessible content","Automated classification with access controls enforced at the retrieval layer","Dynamic, policy-driven data access with real-time classification and retrieval filtering"]},
+  {l:2,q:"How confident are you in the accuracy of AI-generated answers grounded in your enterprise knowledge?",o:["No measurement — accuracy is assumed based on qualitative feedback","Occasional spot-checks but no systematic evaluation","Regular evaluation against a test set but without production monitoring","Continuous automated evaluation with accuracy metrics tracked over time","RAGAS-based eval pipeline with drift detection and business-outcome metrics"]},
+  {l:2,q:"How is the freshness and currency of AI-accessible knowledge managed?",o:["No process — knowledge bases may be months or years out of date","Manual updates on an ad hoc basis","Scheduled batch updates with no validation","Automated ingestion with freshness tracking and staleness alerts","Real-time knowledge synchronisation with lineage and change management"]},
+  {l:2,q:"How are retrieval failures or low-confidence responses handled?",o:["Not handled — the model responds regardless of retrieval quality","Users are expected to judge response quality themselves","Low-confidence responses include a disclaimer but no escalation path","Automated confidence scoring routes low-confidence responses for human review","Multi-stage retrieval with fallback strategies, human escalation, and feedback loops"]},
+  {l:3,q:"How are multi-step AI workflows designed and maintained in your organisation?",o:["No formal approach — AI is used in isolated single-step interactions","Basic chaining exists in individual applications without shared patterns","Shared workflow templates exist but are not governed or versioned","Governed orchestration patterns with version control and change management","Mature orchestration framework with ADRs, pattern library, and cross-team reuse"]},
+  {l:3,q:"How are human oversight and escalation paths designed into AI workflows?",o:["No human oversight — AI outputs are used directly without review","Review happens informally based on individual judgment","Defined review checkpoints exist for high-stakes outputs","Structured human-in-the-loop workflows with clear escalation criteria","Risk-tiered escalation with automated routing, SLA tracking, and audit trail"]},
+  {l:3,q:"How does your organisation manage AI agent failures, timeouts, and unexpected outputs?",o:["No failure handling — errors surface directly to end users","Basic error messages exist but no recovery logic","Retry logic and basic fallbacks are implemented in individual systems","Standardised error handling patterns across AI workflows with alerting","Comprehensive resilience patterns: circuit breakers, graceful degradation, incident playbooks"]},
+  {l:3,q:"How are architectural decisions for AI workflows documented and governed?",o:["No documentation — decisions are made and forgotten","Informal notes exist in team wikis or chat tools","Design documents exist but without a consistent format or review process","Architecture Decision Records are used for significant workflow design choices","ADR-driven culture with mandatory review, version history, and supersession tracking"]},
+  {l:3,q:"How are AI workflow costs monitored and optimised at the orchestration layer?",o:["No monitoring — costs are visible only in monthly cloud bills","Approximate costs are estimated but not tracked per workflow","Per-workflow cost tracking exists but optimisation is reactive","Proactive cost optimisation with token budgets and model routing by cost tier","Automated cost governance: prompt compression, semantic caching, model routing, budget alerts"]},
+  {l:4,q:"What is your approach to evaluating AI system quality before production deployment?",o:["No evaluation — systems go live based on qualitative team judgment","Informal testing by the development team before release","A structured test set is used but evaluation is manual and infrequent","Automated evaluation pipeline runs before every deployment","Continuous eval-before-deploy gate with RAGAS or equivalent, blocking releases on regression"]},
+  {l:4,q:"How do you detect and respond to degradation in AI system quality over time?",o:["No monitoring — quality degradation is discovered through user complaints","Periodic manual reviews conducted on a quarterly or ad hoc basis","Monthly automated evaluation runs with manual review of results","Weekly automated evaluation with alerting on metric regression","Real-time drift detection with automated investigation triggers and rollback capability"]},
+  {l:4,q:"How are AI-related risks identified, assessed, and tracked in your organisation?",o:["No formal AI risk process — risks are managed reactively","AI risks are noted in general project risk registers without specific treatment","An AI risk register exists but is reviewed infrequently","Regular AI risk reviews with defined risk tiers and mitigation tracking","Continuous AI risk management with automated detection and NIST AI RMF alignment"]},
+  {l:4,q:"How is regulatory compliance managed for AI systems (EU AI Act, OSFI, sector-specific)?",o:["No compliance mapping — regulatory requirements for AI are not tracked","Awareness of relevant regulations but no formal compliance programme","A compliance inventory exists but has not been independently reviewed","Active compliance programme with mapped controls and evidence collection","Continuous compliance assurance with automated evidence and external audit readiness"]},
+  {l:4,q:"How does your organisation manage third-party AI risk?",o:["No third-party AI risk process — vendor AI use is not assessed","Vendors are asked about AI use in RFPs but no formal assessment exists","A third-party AI risk questionnaire is used for significant vendors","Structured third-party AI risk programme with tiered assessment and ongoing monitoring","Continuous third-party AI risk management with contractual controls and audit rights"]},
+  {l:5,q:"How are AI systems integrated with your existing enterprise applications and workflows?",o:["Ad hoc — each AI system integrates differently with no shared patterns","Basic API integrations built individually for each use case","Shared integration patterns exist but are not formally governed","Governed integration library with reusable patterns, versioning, and documentation","Enterprise integration framework with AI-specific adapters and event-driven patterns"]},
+  {l:5,q:"How is identity and access management integrated between AI systems and your enterprise IAM?",o:["No integration — AI systems use their own user stores or no authentication","Partial integration — some AI systems use SSO but not all","SSO is standard but fine-grained authorisation is not integrated","Full IAM integration with role-based access control propagated to AI systems","Zero-trust AI access model with dynamic authorisation and continuous verification"]},
+  {l:5,q:"How are AI system outputs integrated into business processes and decision workflows?",o:["No integration — AI outputs are copied manually into business systems","Partial integration via exports or scheduled uploads","Real-time integration for some use cases but not systematically","Systematic integration with defined handoff points and human review gates","End-to-end process automation with AI outputs driving workflow state transitions"]},
+  {l:5,q:"How is data residency and sovereignty managed for AI workloads?",o:["Not managed — data location for AI processing is unknown","Aware of the issue but no formal controls in place","Data residency requirements are documented but enforcement is manual","Automated data residency controls with routing policies enforced at the integration layer","Comprehensive data sovereignty framework with real-time enforcement and regulatory mapping"]},
+  {l:5,q:"How does your organisation manage the operational continuity of AI-integrated systems?",o:["No continuity planning specific to AI — covered by general IT continuity","AI systems are included in IT DR plans but without AI-specific considerations","AI-specific continuity scenarios are documented but not tested","AI continuity plans are tested annually with defined RTOs and RPOs","Continuous resilience testing for AI integrations with automated failover and degraded-mode operation"]}
+];
+
+const MATURITY = ["","Initial","Developing","Defined","Managed","Optimising"];
+const MAT_CLASS = ["","mat-initial","mat-developing","mat-defined","mat-managed","mat-optimising"];
+const FINDINGS = [
+  {gap:"No centralised AI gateway means spend and access are invisible to leadership — shadow AI and ungoverned cost accumulation are likely.",ok:"Access governance controls are in place. Focus now on deepening policy enforcement and extending to all AI touchpoints."},
+  {gap:"Enterprise knowledge is not systematically grounded into AI systems, creating accuracy and recency risk with every user interaction.",ok:"Knowledge and retrieval architecture is solid. Prioritise freshness controls, evaluation depth, and structured data grounding."},
+  {gap:"AI workflows lack shared patterns and governance, creating inconsistency across teams and accumulating technical debt.",ok:"Orchestration patterns are established. Focus on resilience patterns, cost optimisation, and cross-team pattern reuse."},
+  {gap:"No systematic evaluation means quality degradation will be discovered through user complaints rather than proactive monitoring.",ok:"Evaluation and trust controls are mature. Shift focus to regulatory compliance depth and third-party AI risk management."},
+  {gap:"AI systems are not consistently integrated with enterprise IAM and business processes, creating security and audit gaps.",ok:"Integration patterns are well-governed. Focus on data residency enforcement and operational continuity testing."}
+];
+const ROADMAP = [
+  {now:"Implement a centralised AI gateway with team-based API key management and real-time cost attribution.",soon:"Establish a model allowlist and shadow AI containment policy with active detection and monitoring.",later:"Build a full AI governance operating model with policy-as-code and continuous compliance assurance."},
+  {now:"Inventory all AI-accessible data sources and apply data classification controls at the retrieval layer.",soon:"Deploy a governed RAG platform with freshness tracking and automated evaluation on a scheduled cadence.",later:"Implement multi-source hybrid retrieval with lineage, drift detection, and business-outcome metrics."},
+  {now:"Document your three highest-volume AI workflows and identify human oversight and escalation gaps.",soon:"Establish shared orchestration patterns with a version-controlled ADR library for workflow design decisions.",later:"Deploy cost governance at the orchestration layer with semantic caching and intelligent model routing."},
+  {now:"Define an AI quality baseline and build a minimum viable automated evaluation pipeline before next deployment.",soon:"Implement continuous evaluation with regression alerting and a formal eval-before-deploy gate.",later:"Achieve continuous compliance assurance with NIST AI RMF mapping and external audit readiness."},
+  {now:"Audit AI system integrations for IAM gaps and document data residency requirements for each system.",soon:"Implement a governed integration library with shared patterns and versioned adapters across teams.",later:"Deploy end-to-end AI integration governance with zero-trust access and tested continuity runbooks."}
+];
+
+let answers = new Array(25).fill(null);
+let current = 0;
+let chartInstance = null;
+
+function startAssessment() {
+  show('screen-assessment');
+  renderQ();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQ() {
+  const q = QUESTIONS[current];
+  const pct = Math.round((current / 25) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('nav-count').textContent = (current + 1) + ' of 25';
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btn-next');
+  btnNext.textContent = current === 24 ? 'View results →' : 'Next →';
+  const hasAnswer = answers[current] !== null;
+  btnNext.disabled = !hasAnswer;
+  btnNext.style.opacity = hasAnswer ? '1' : '0.35';
+  btnNext.style.cursor = hasAnswer ? 'pointer' : 'not-allowed';
+
+  let html = '<p class="q-layer-tag">Layer ' + q.l + ' — ' + LAYERS[q.l-1] + '</p>';
+  html += '<p class="q-text">' + q.q + '</p><div class="options-list">';
+  q.o.forEach((opt, i) => {
+    const sel = answers[current] === i ? ' selected' : '';
+    html += '<div class="option-item' + sel + '" onclick="pick(' + i + ')">';
+    html += '<div class="option-radio"></div>';
+    html += '<span class="option-text">' + opt + '</span></div>';
+  });
+  html += '</div>';
+  document.getElementById('question-area').innerHTML = html;
+}
+
+function pick(i) {
+  answers[current] = i;
+  document.querySelectorAll('.option-item').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  const btnNext = document.getElementById('btn-next');
+  btnNext.disabled = false;
+  btnNext.style.opacity = '1';
+  btnNext.style.cursor = 'pointer';
+}
+
+function goNext() {
+  if (answers[current] === null) return;
+  if (current === 24) { buildResults(); return; }
+  current++;
+  renderQ();
+}
+
+function goBack() {
+  if (current > 0) { current--; renderQ(); }
+}
+
+function calcScores() {
+  const totals = [0,0,0,0,0];
+  const counts = [0,0,0,0,0];
+  QUESTIONS.forEach((q,i) => {
+    totals[q.l-1] += (answers[i] || 0) + 1;
+    counts[q.l-1]++;
+  });
+  return totals.map((t,i) => Math.round((t / counts[i]) * 10) / 10);
+}
+
+function getLabel(s) {
+  if (s < 1.5) return "Initial";
+  if (s < 2.5) return "Developing";
+  if (s < 3.5) return "Defined";
+  if (s < 4.5) return "Managed";
+  return "Optimising";
+}
+
+function getMClass(s) {
+  if (s < 1.5) return "mat-initial";
+  if (s < 2.5) return "mat-developing";
+  if (s < 3.5) return "mat-defined";
+  if (s < 4.5) return "mat-managed";
+  return "mat-optimising";
+}
+
+function buildResults() {
+  const scores = calcScores();
+  const overall = Math.round((scores.reduce((a,b) => a+b,0)/5)*10)/10;
+  show('screen-results');
+
+  let title, sub;
+  if (overall < 2) { title = "AI governance is at an early stage"; sub = "Significant exposure exists across multiple layers. Immediate action is recommended to contain risk and establish foundational controls."; }
+  else if (overall < 3) { title = "Governance foundations are emerging"; sub = "Progress is visible in some areas, but material gaps remain. A structured programme is needed to move from ad hoc to defined practice."; }
+  else if (overall < 4) { title = "Governance is defined and developing"; sub = "Your organisation has solid foundations. The priority is consistency, automation, and deepening controls across all five layers."; }
+  else { title = "AI governance is mature and managed"; sub = "Strong performance across most layers. Focus shifts to optimisation, continuous assurance, and scaling governance to new use cases and teams."; }
+
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-sub').textContent = 'Overall maturity: ' + overall.toFixed(1) + ' / 5.0 — ' + sub;
+
+  let scoresHtml = '';
+  scores.forEach((s, i) => {
+    scoresHtml += '<div class="score-cell">';
+    scoresHtml += '<p class="score-layer-label">Layer ' + (i+1) + '</p>';
+    scoresHtml += '<p class="score-number">' + s.toFixed(1) + '</p>';
+    scoresHtml += '<p class="score-maturity ' + getMClass(s) + '">' + getLabel(s) + '</p>';
+    scoresHtml += '<p class="score-name">' + LAYERS[i] + '</p></div>';
+  });
+  document.getElementById('scores-row').innerHTML = scoresHtml;
+
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  chartInstance = new Chart(document.getElementById('radar-chart'), {
+    type: 'radar',
+    data: {
+      labels: ['Access &
+Governance','Data &
+Retrieval','Orchestration','Evaluation
+& Trust','Integration'],
+      datasets: [{
+        label: 'Maturity score',
+        data: scores,
+        borderColor: '#1F3A5F',
+        backgroundColor: 'rgba(31,58,95,0.08)',
+        borderWidth: 1.5,
+        pointBackgroundColor: '#1F3A5F',
+        pointRadius: 4,
+        pointHoverRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 5,
+          ticks: { stepSize: 1, font: { size: 11 }, color: '#8A909A', backdropColor: 'transparent' },
+          grid: { color: 'rgba(0,0,0,0.08)' },
+          angleLines: { color: 'rgba(0,0,0,0.08)' },
+          pointLabels: { font: { size: 11 }, color: '#5A6270' }
+        }
+      }
+    }
+  });
+
+  const lowestIdx = scores.indexOf(Math.min(...scores));
+  const highestIdx = scores.indexOf(Math.max(...scores));
+  const gaps = scores.map((s,i) => ({i,s})).filter(x => x.s < 3).sort((a,b) => a.s-b.s);
+
+  let findHtml = '';
+  gaps.slice(0,3).forEach(g => {
+    findHtml += '<div class="finding-row"><div class="finding-badge badge-gap">!</div>';
+    findHtml += '<p class="finding-body"><strong>Layer ' + (g.i+1) + ' — ' + LAYERS[g.i] + ' (' + getLabel(g.s) + ')</strong><br>' + FINDINGS[g.i].gap + '</p></div>';
+  });
+  if (!gaps.length) {
+    findHtml += '<div class="finding-row"><div class="finding-badge badge-ok">✓</div>';
+    findHtml += '<p class="finding-body"><strong>Strong across all layers</strong><br>Your governance programme is mature. The priority shifts to optimisation, continuous assurance, and scaling to new use cases.</p></div>';
+  }
+  findHtml += '<div class="finding-row"><div class="finding-badge badge-ok">✓</div>';
+  findHtml += '<p class="finding-body"><strong>Strongest area: Layer ' + (highestIdx+1) + ' — ' + LAYERS[highestIdx] + '</strong><br>' + FINDINGS[highestIdx].ok + '</p></div>';
+  document.getElementById('findings-list').innerHTML = findHtml;
+
+  const priority = [...gaps.map(g => g.i)];
+  [0,1,2,3,4].forEach(i => { if (!priority.includes(i)) priority.push(i); });
+  let roadHtml = '';
+  priority.slice(0,3).forEach((li, rank) => {
+    const r = ROADMAP[li];
+    roadHtml += '<div class="road-row"><span class="road-tag tag-now">Now</span><p class="road-text"><strong>Layer ' + (li+1) + ' — ' + LAYERS[li] + '</strong><br>' + r.now + '</p></div>';
+    roadHtml += '<div class="road-row"><span class="road-tag tag-soon">1–3 months</span><p class="road-text">' + r.soon + '</p></div>';
+    roadHtml += '<div class="road-row"><span class="road-tag tag-later">3–12 months</span><p class="road-text">' + r.later + '</p></div>';
+    if (rank < 2) roadHtml += '<div class="road-divider"></div>';
+  });
+  document.getElementById('roadmap-list').innerHTML = roadHtml;
+}
+
+function restart() {
+  answers = new Array(25).fill(null);
+  current = 0;
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  show('screen-intro');
+}
+</script>
+</body>
+</html>
