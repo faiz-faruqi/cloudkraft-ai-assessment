@@ -8,7 +8,7 @@ CloudKraft Consulting Inc. · [cloudkraft.com](https://cloudkraft.com) · faiz@c
 
 ## Take the Assessment
 
-**[Start the AI Governance Maturity Assessment →](https://assessment.cloudkraft.com)**
+**[Start the AI Governance Maturity Assessment →](https://assessment.cloudkraft.com/assessment/)**
 
 Score your organisation across five architectural layers in 5–8 minutes.
 Receive a maturity profile, gap analysis, and prioritised roadmap.
