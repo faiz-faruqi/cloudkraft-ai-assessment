@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudKraft — Tier 3 Implementation Advisory</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1F3A5F; --navy-deep: #0D1F38; --teal: #0B7A6F;
+    --teal-light: #E1F5EE; --teal-mid: #9FE1CB;
+    --text: #1A1A1A; --muted: #5A6270; --hint: #8A909A;
+    --border: #D0D5DD; --surface: #F7F9FB;
+    --serif: 'EB Garamond', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  body { font-family: var(--sans); background: #fff; color: var(--text); font-size: 13px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  @media print { body { font-size: 11px; } .no-print { display: none; } .page { box-shadow: none; margin: 0; max-width: 100%; } }
+  .page { max-width: 794px; margin: 0 auto; background: #fff; box-shadow: 0 0 40px rgba(0,0,0,0.08); }
+
+  .header { background: var(--navy-deep); padding: 36px 48px 32px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; left: -40px; bottom: -40px; width: 200px; height: 200px; border-radius: 50%; border: 32px solid rgba(11,122,111,0.12); }
+  .header-brand { font-family: var(--serif); font-size: 15px; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; margin-bottom: 28px; }
+  .header-brand span { color: var(--teal-mid); }
+  .header-tier { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-mid); margin-bottom: 8px; }
+  .header-title { font-family: var(--serif); font-size: 36px; font-weight: 400; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+  .header-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 500px; margin-bottom: 28px; }
+  .header-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .meta-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 3px; }
+  .meta-value { font-size: 13px; color: #fff; font-weight: 500; }
+
+  .body { padding: 40px 48px; }
+
+  .problem { background: var(--surface); border-left: 3px solid var(--teal); padding: 20px 24px; margin-bottom: 36px; }
+  .problem-text { font-family: var(--serif); font-size: 16px; color: var(--navy); line-height: 1.7; font-style: italic; }
+
+  .section-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .deliverables { margin-bottom: 36px; }
+  .deliverable { display: flex; gap: 0; margin-bottom: 2px; }
+  .deliverable-header { background: var(--navy); padding: 12px 18px; width: 200px; flex-shrink: 0; display: flex; align-items: center; }
+  .deliverable-header-text { font-size: 12px; font-weight: 600; color: #fff; line-height: 1.3; }
+  .deliverable-body { background: var(--surface); padding: 12px 18px; flex: 1; border: 1px solid var(--border); border-left: none; display: flex; align-items: center; }
+  .deliverable-body-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .deliverable:nth-child(even) .deliverable-header { background: var(--teal); }
+
+  .models { display: flex; gap: 12px; margin-bottom: 36px; }
+  .model { flex: 1; border: 1px solid var(--border); padding: 18px; }
+  .model-name { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .model-price { font-size: 13px; color: var(--teal); font-weight: 500; margin-bottom: 8px; }
+  .model-body { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .model-featured { border-color: var(--teal); border-top: 2px solid var(--teal); }
+
+  .independence { background: var(--navy); padding: 20px 24px; margin-bottom: 36px; }
+  .independence-title { font-family: var(--serif); font-size: 17px; color: #fff; margin-bottom: 8px; }
+  .independence-body { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+
+  .ideal { background: var(--teal-light); border: 1px solid var(--teal-mid); padding: 16px 20px; margin-bottom: 36px; display: flex; gap: 16px; align-items: flex-start; }
+  .ideal-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); flex-shrink: 0; padding-top: 2px; }
+  .ideal-roles { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ideal-role { font-size: 12px; color: var(--teal); border: 1px solid var(--teal-mid); padding: 2px 10px; background: #fff; }
+
+  .principles { display: flex; gap: 12px; margin-bottom: 36px; }
+  .principle { flex: 1; padding: 14px; background: var(--surface); border: 1px solid var(--border); }
+  .principle-title { font-size: 11px; font-weight: 600; color: var(--navy); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .principle-body { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .cta { background: var(--teal); padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .cta-title { font-family: var(--serif); font-size: 20px; color: #fff; margin-bottom: 4px; font-weight: 400; }
+  .cta-sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .cta-email { font-size: 13px; color: #fff; display: block; margin-bottom: 3px; font-weight: 500; }
+  .cta-website { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+  .footer { padding: 14px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .footer-copy { font-size: 10px; color: var(--hint); }
+  .footer-tm { font-size: 10px; color: var(--hint); }
+  .print-btn { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; border: none; padding: 12px 20px; font-family: var(--sans); font-size: 13px; cursor: pointer; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <p class="header-brand">Cloud<span>Kraft</span> Consulting Inc.</p>
+    <p class="header-tier">Tier 3 &nbsp;&middot;&nbsp; Advisory Services</p>
+    <h1 class="header-title">Implementation Advisory</h1>
+    <p class="header-sub">Senior architectural oversight across the delivery lifecycle &mdash; keeping the target architecture intact through the decisions, trade-offs, and pressures of a live implementation programme.</p>
+    <div class="header-meta">
+      <div><p class="meta-label">Investment</p><p class="meta-value">From $18,000/month</p></div>
+      <div><p class="meta-label">Duration</p><p class="meta-value">3&ndash;6 months</p></div>
+      <div><p class="meta-label">Pricing model</p><p class="meta-value">Monthly retainer</p></div>
+      <div><p class="meta-label">Format</p><p class="meta-value">Remote or on-site</p></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="problem">
+      <p class="problem-text">&ldquo;Your architecture is approved. Your team is building. The risk now is drift &mdash; architectural decisions made under delivery pressure that compromise the target state, governance controls deferred to phase two and never returning. Implementation Advisory prevents that.&rdquo;</p>
+    </div>
+
+    <p class="section-label">What you receive</p>
+    <div class="deliverables">
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">Weekly Architecture Reviews</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">Structured sessions with the implementation team to review in-flight decisions and maintain alignment to the target architecture. The architect who designed your blueprint stays with your delivery.</p></div>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">ADR Adjudication &amp; Sign-off</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">Review and sign-off on all material architectural decisions made during implementation. Every trade-off documented and defensible. The answer when a regulator or auditor asks why.</p></div>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">Phase Gate Reviews</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">Go/no-go reviews at every major phase transition — structured assessment of readiness, quality, and alignment to the target architecture before proceeding.</p></div>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">Risk &amp; Issue Escalation</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">An independent architectural voice to the programme sponsor. CloudKraft holds no delivery contract — recommendations serve the target state, not delivery convenience.</p></div>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">Monthly Executive Reporting</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">Architectural health reports to the programme sponsor and executive steering committee. Written for a board audience, not a technical audience.</p></div>
+      </div>
+      <div class="deliverable">
+        <div class="deliverable-header"><p class="deliverable-header-text">Governance Handover</p></div>
+        <div class="deliverable-body"><p class="deliverable-body-text">Transition of the operating model to internal teams — runbooks, decision frameworks, escalation paths. Our success is measured by the capability we leave behind, not the length of our engagement.</p></div>
+      </div>
+    </div>
+
+    <p class="section-label">Engagement models</p>
+    <div class="models">
+      <div class="model model-featured">
+        <p class="model-name">Full Retainer</p>
+        <p class="model-price">From $18,000/month</p>
+        <p class="model-body">Weekly reviews, all deliverables, full programme coverage. Best for complex programmes with multiple workstreams and high governance stakes.</p>
+      </div>
+      <div class="model">
+        <p class="model-name">Fractional Advisor</p>
+        <p class="model-price">From $10,000/month</p>
+        <p class="model-body">Bi-weekly reviews and ADR adjudication. For programmes with experienced internal architects who need senior oversight, not full engagement.</p>
+      </div>
+      <div class="model">
+        <p class="model-name">Phase Gate Reviews Only</p>
+        <p class="model-price">From $5,000/gate</p>
+        <p class="model-body">Structured go/no-go review at each phase transition. For programmes that need external validation at key decision points without ongoing engagement.</p>
+      </div>
+    </div>
+
+    <div class="independence">
+      <p class="independence-title">The independence advantage</p>
+      <p class="independence-body">CloudKraft holds no delivery contract, no vendor relationships, and no implementation dependencies. Our recommendations serve the target architecture and your organisation's best interests &mdash; not delivery convenience, vendor commercial relationships, or scope expansion. This independence is the most commercially valuable thing we bring to a programme in delivery.</p>
+    </div>
+
+    <div class="ideal">
+      <p class="ideal-label">Ideal for</p>
+      <div class="ideal-roles">
+        <span class="ideal-role">Programme Sponsor</span>
+        <span class="ideal-role">Head of AI</span>
+        <span class="ideal-role">Chief Architect</span>
+        <span class="ideal-role">CTO</span>
+        <span class="ideal-role">Audit Committee</span>
+      </div>
+    </div>
+
+    <p class="section-label">Our principles</p>
+    <div class="principles">
+      <div class="principle"><p class="principle-title">Vendor-neutral</p><p class="principle-body">No reseller agreements. No implementation contracts. Recommendations serve your target state.</p></div>
+      <div class="principle"><p class="principle-title">Senior-led</p><p class="principle-body">Every engagement delivered by the principal architect. The person who designed your blueprint is the person reviewing its implementation.</p></div>
+      <div class="principle"><p class="principle-title">Independence</p><p class="principle-body">CloudKraft has no stake in the delivery outcome. We escalate risks your delivery team cannot raise alone.</p></div>
+      <div class="principle"><p class="principle-title">Capability transfer</p><p class="principle-body">Every engagement ends with a governance handover. We measure success by what we leave behind.</p></div>
+    </div>
+
+    <div class="cta">
+      <div>
+        <p class="cta-title">Ready to protect your implementation?</p>
+        <p class="cta-sub">Typically follows a Tier 2 Blueprint. Can begin at any stage of a live delivery programme.</p>
+      </div>
+      <div style="text-align:right; flex-shrink:0;">
+        <span class="cta-email">faiz@cloudkraft.com</span>
+        <span class="cta-website">cloudkraft.com</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p class="footer-copy">CloudKraft Consulting Inc. &copy; 2026 &nbsp;&middot;&nbsp; Waterloo, Ontario, Canada</p>
+    <p class="footer-tm">CloudKraft AI Control Tower&trade; is a trademark of CloudKraft Consulting Inc.</p>
+  </div>
+</div>
+<button class="print-btn no-print" onclick="window.print()">Save as PDF &darr;</button>
+</body>
+</html>
