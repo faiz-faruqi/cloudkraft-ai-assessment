@@ -1,6 +1,6 @@
-# CloudKraft AI Control Tower - Framework
+# CloudKraft AI Control Framework - Framework
 
-The CloudKraft AI Control Tower framework is a five-layer methodology for designing, governing, and operationalising enterprise GenAI platforms. It is opinionated, tool-specific, and built for practitioners who need to make real architectural decisions - not consultants who need to avoid them.
+The CloudKraft AI Control Framework is a five-layer methodology for designing, governing, and operationalising enterprise GenAI platforms. It is opinionated, tool-specific, and built for practitioners who need to make real architectural decisions - not consultants who need to avoid them.
 
 Each layer addresses a distinct architectural concern. Each has named patterns, real tool comparisons, anti-patterns drawn from observed failures, and key questions that surface in every serious enterprise AI engagement.
 
@@ -8,11 +8,11 @@ Each layer addresses a distinct architectural concern. Each has named patterns, 
 
 | Layer | Concern | Primary Stakeholder |
 |---|---|---|
-| [1 - Access & Governance](./layer-1-access-governance.md) | How AI access, policy, and cost are controlled | CISO, FinOps, CTO |
-| [2 - Data & Retrieval](./layer-2-data-retrieval.md) | How enterprise knowledge grounds AI systems | CDO, Data Architecture |
-| [3 - Orchestration](./layer-3-orchestration.md) | How AI workflows are designed and maintained | VP Engineering, Platform |
-| [4 - Evaluation & Trust](./layer-4-evaluation-trust.md) | How AI quality is measured over time | Head of AI, Risk |
-| [5 - Integration](./layer-5-integration.md) | How AI connects to enterprise systems | Enterprise Architecture |
+| [1 - Data Readiness](./layer-1-data-readiness.md) | How data quality, lineage, and vector stores prepare information for AI consumption | CDO, Data Architecture |
+| [2 - Architecture Patterns](./layer-2-architecture-patterns.md) | How RAG design, agent orchestration, and system topology structure AI integration | VP Engineering, Platform |
+| [3 - Governance & Risk](./layer-3-governance-risk.md) | How RBAC, audit logging, and responsible AI controls manage regulatory compliance | CISO, Risk, Legal |
+| [4 - Operating Model](./layer-4-operating-model.md) | How team structure, ownership, and vendor management govern the AI programme | Head of AI, CTO |
+| [5 - Integration & Scale](./layer-5-integration-scale.md) | How workflow embedding, observability, and cost control harden AI in production | Enterprise Architecture, FinOps |
 
 ## How to Use This Framework
 
@@ -20,7 +20,7 @@ Each layer addresses a distinct architectural concern. Each has named patterns, 
 
 **If you are inside a CloudKraft engagement:** These documents are the methodology backbone. Each Tier 1 Assessment scores your organisation against these five layers. Each Tier 2 Blueprint produces the target architecture for the layers with the lowest scores.
 
-**If you are an architect building your own AI governance programme:** Start with Layer 1 (Access & Governance) regardless of where you think your biggest gap is. In practice, ungoverned access is the root cause of most other AI governance failures.
+**If you are an architect building your own AI governance programme:** Start with Layer 1 (Data Readiness) regardless of where you think your biggest gap is. In practice, ungoverned data is the root cause of most downstream AI quality and trust failures.
 
 ## The Maturity Scale
 
@@ -40,7 +40,7 @@ A score of 3 (Defined) is the minimum viable threshold for a regulated enterpris
 
 **Opinionated over neutral.** This framework makes explicit recommendations. When there are two reasonable options, we tell you which one we would choose and why. You may disagree - the ADR format is designed exactly for that.
 
-**Tool-specific over abstract.** Naming real tools (LangSmith, Portkey, Presidio, LangGraph) is more useful than generic categories. Tool recommendations are vendor-neutral in the sense that we hold no reseller relationships, not in the sense that we refuse to name a winner.
+**Tool-specific over abstract.** Naming real tools is more useful than generic categories. Tool recommendations are vendor-neutral in the sense that we hold no reseller relationships, not in the sense that we refuse to name a winner.
 
 **Layered over monolithic.** Each layer can be addressed independently. A mature Layer 2 does not require a mature Layer 1 - though the combination is dramatically more powerful than either alone.
 
